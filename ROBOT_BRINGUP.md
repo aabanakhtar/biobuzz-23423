@@ -46,3 +46,15 @@ Select Custom in the OctoQuad tuner and verify the measured travel before accept
 
 - https://shop.swyftrobotics.com/products/swyft-linear-odometry-module
 - https://cdn.shopify.com/s/files/1/0875/8486/6598/files/swyft_encoder_gobilda_pinpoint_example_code.java?v=1764901678
+
+## Mechanism tuning OpModes
+
+Both OpModes initialize the complete Ashwing robot and use the configured OctoQuad localizer.
+Complete hardware configuration and localization setup first. Outputs stay off during INIT.
+Use FTC Dashboard graphs for target, measured value and error; tune gains in RobotConstants.
+
+- `Tune: Turret Angles`: alternates -10 and +10 degrees (20 degrees total) every 1.5 seconds after START. Adjust `TurretTuningOpMode.RANGE_DEGREES` and `STEP_SECONDS` in Dashboard. Encoder counts/gearing must be configured; zero calibration keeps the turret stopped.
+- `Tune: Shooter Velocity`: edit `ShooterTuningOpMode.TARGET_VELOCITY` in Dashboard, in ticks/second. Fixed-velocity control does not require the interpolation table. Set zero for a zero velocity target; STOP immediately zeros motor commands.
+- Both enable their mechanism's live PID updates while running, disable live tuning on STOP, and stop the robot outputs and follower.
+
+- `Calibrate: Turret Encoders (Read Only)`: displays only analog voltage, analog angle and raw quadrature ticks during INIT and RUN. Move the turret by hand. It maps only the turret encoder devices, does not initialize Ashwing/OctoQuad, and issues no actuator or encoder-reset commands.
