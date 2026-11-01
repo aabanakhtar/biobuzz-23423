@@ -1,0 +1,10 @@
+# Gradle and Android build output
+.gradle/
+**/build/
+
+# Local Android SDK and editor state
+local.properties
+.idea/caches/
+.idea/workspace.xml
+.idea/shelf/
+*.iml
