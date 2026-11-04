@@ -89,8 +89,6 @@ public class Ashwing {
         intake.setMode(Intake.Mode.OFF);
         intake.closeLatch();
         descorer.setMode(Descorer.Mode.STORE);
-        intakeLeft.set(0.0);
-        intakeRight.set(0.0);
         Turret.targetPower = 0.0;
         turret.setMode(Turret.Mode.RAW);
         Turret.mode = Turret.Mode.RAW;
@@ -98,8 +96,6 @@ public class Ashwing {
         turretLeft.set(0.0);
         turretRight.set(0.0);
         shooter.setPower(0.0);
-        shooterLeft.set(0.0);
-        shooterRight.set(0.0);
     }
 
     public Ashwing init(Mode mode, Pose pose, HardwareMap map, Telemetry t) {
@@ -133,8 +129,7 @@ public class Ashwing {
         turretRight = new CRServo(map, TURRET_RIGHT);
         turretLeft.setInverted(TURRET_LEFT_REVERSED);
         turretRight.setInverted(TURRET_RIGHT_REVERSED);
-        turretLeft.set(0.0);
-        turretRight.set(0.0);
+
 
         // Opposing intake motors share power commands; inversion lives with the hardware.
         intakeLeft = new MotorEx(map, INTAKE_LEFT);
