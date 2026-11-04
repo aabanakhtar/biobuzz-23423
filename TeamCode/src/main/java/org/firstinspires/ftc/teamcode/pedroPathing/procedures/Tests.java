@@ -303,7 +303,7 @@ class TestsLocalization extends TuningOpMode<Boolean> {
         while (opModeIsActive()) {
             drivetrain.drive(new DrivePowers(-gamepad1.left_stick_y, -gamepad1.left_stick_x, -gamepad1.right_stick_x), true);
             localizer.update();
-            telemetry.addData("Pose", localizer.pose());
+            telemetry.addData("Robot pose", localizer.pose());
             telemetry.update();
         }
         return true;
@@ -397,24 +397,24 @@ class TestsOdometry extends TuningOpMode<Boolean> {
                     Pose pose = localizer.pose();
 
                     if (pose.x() < 0)
-                        telemetry.addData("xPod Direction", "Flipped");
+                        telemetry.addData("X pod direction", "Flipped");
                     else if (pose.x() < 2)
-                        telemetry.addData("xPod Resolution", "Too high");
+                        telemetry.addData("X pod resolution", "Too high");
                     else if (pose.x() > 144)
-                        telemetry.addData("xPod Resolution", "Too low");
+                        telemetry.addData("X pod resolution", "Too low");
                     else {
-                        telemetry.addData("xPod", "Good");
+                        telemetry.addData("X pod", "Good");
                         passedX = true;
                     }
 
                     if (pose.y() < 0)
-                        telemetry.addData("yPod Direction", "Flipped");
+                        telemetry.addData("Y pod direction", "Flipped");
                     else if (pose.y() < 2)
-                        telemetry.addData("yPod Resolution", "Too high");
+                        telemetry.addData("Y pod resolution", "Too high");
                     else if (pose.y() > 144)
-                        telemetry.addData("yPod Resolution", "Too low");
+                        telemetry.addData("Y pod resolution", "Too low");
                     else {
-                        telemetry.addData("yPod", "Good");
+                        telemetry.addData("Y pod", "Good");
                         passedY = true;
                     }
 
@@ -432,7 +432,7 @@ class TestsOdometry extends TuningOpMode<Boolean> {
                     break;
             }
 
-            telemetry.addData("Pose", localizer.pose());
+            telemetry.addData("Robot pose", localizer.pose());
             telemetry.update();
         }
         return passedX && passedY && passedHeading;
@@ -475,7 +475,7 @@ class TestsPose extends TuningOpMode<Boolean> {
         localizer.update();
         while (opModeIsActive()) {
             localizer.update();
-            telemetry.addData("Pose", localizer.pose());
+            telemetry.addData("Robot pose", localizer.pose());
             telemetry.update();
         }
         return true;

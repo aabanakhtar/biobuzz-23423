@@ -39,9 +39,9 @@ public class PedroTeleOpSample extends CommandOpMode {
         ));
         follower.update();
 
-        telemetryData.addData("X", follower.pose().x());
-        telemetryData.addData("Y", follower.pose().y());
-        telemetryData.addData("Heading", follower.pose().heading());
+        telemetryData.addData("Robot X (in)", follower.pose().x());
+        telemetryData.addData("Robot Y (in)", follower.pose().y());
+        telemetryData.addData("Robot heading (rad)", follower.pose().heading());
         telemetryData.update();
     }
 }

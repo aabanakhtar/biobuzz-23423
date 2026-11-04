@@ -52,9 +52,14 @@ public class Turret extends SubsystemBase {
         return lastAngle;
     }
 
+    public double getAverageLoopMs() {
+        return averager.getAvgMs();
+    }
+
     @Override
     public void periodic() {
         averager.mark();
+        robot.flightRecorder.addLine("<b>Turret</b>");
         TURRET_ENCODER_CPR = ENCODER_PPR * GEAR_RATIO;
         if (!Double.isFinite(TURRET_ENCODER_CPR) || TURRET_ENCODER_CPR <= 0) {
             setPower(0.0);
@@ -78,9 +83,7 @@ public class Turret extends SubsystemBase {
         final double quadratureAngle = calculateAngleFromEncoder();
         lastAngle = quadratureAngle;
 
-        robot.flightRecorder.addLine("==========TURRET===========");
-        robot.flightRecorder.addData("quadrature angle", quadratureAngle);
-        robot.flightRecorder.addData("average ms", averager.getAvgMs());
+        robot.flightRecorder.addData("Quadrature angle (deg)", quadratureAngle);
 
         if (tuning) {
             turretAnglePID.setPIDF(kP, kI, kD, 0);
@@ -112,7 +115,7 @@ public class Turret extends SubsystemBase {
                 // filter our target
                 double rawTarget = robot.drive.getAimTarget().heading;
                 double compensatedTarget = rawTarget - predictedLeadOffset;
-                robot.flightRecorder.addData("TARGET", rawTarget);
+                robot.flightRecorder.addData("Tracking target (deg)", rawTarget);
 
                 // constrain our angles
                 double constrainedAngleDeg = Math.max(-TURRET_MAX_ANGLE, Math.min(TURRET_MAX_ANGLE, compensatedTarget + offset_angle));

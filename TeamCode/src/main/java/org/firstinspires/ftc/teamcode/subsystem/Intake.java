@@ -6,9 +6,12 @@ import com.bylazar.configurables.annotations.Configurable;
 import com.seattlesolvers.solverslib.command.SubsystemBase;
 
 import org.firstinspires.ftc.teamcode.robot.Ashwing;
+import org.firstinspires.ftc.teamcode.utilities.SubsystemLooptimeAverager;
 
 @Configurable
 public class Intake extends SubsystemBase {
+    private final SubsystemLooptimeAverager averager = new SubsystemLooptimeAverager();
+
     public enum Mode {
         INGEST,
         DISCARD,
@@ -29,8 +32,13 @@ public class Intake extends SubsystemBase {
         Intake.mode = mode;
     }
 
+    public double getAverageLoopMs() {
+        return averager.getAvgMs();
+    }
+
     @Override
     public void periodic() {
+        averager.mark();
         Ashwing robot = Ashwing.get();
         // update latch
         robot.latchServo.set(intakeLatchTargetPos);
@@ -51,6 +59,7 @@ public class Intake extends SubsystemBase {
             default:
                 break;
         }
+        averager.endMark();
     }
 
     public void openLatch() {

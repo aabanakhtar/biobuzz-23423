@@ -46,6 +46,10 @@ public class Shooter extends SubsystemBase {
         flywheelVelocityPID.setTolerance(VELOCITY_TOLERANCE);
     }
 
+    public double getAverageLoopMs() {
+        return averager.getAvgMs();
+    }
+
     @Override
     public void periodic() {
         averager.mark();
@@ -58,6 +62,8 @@ public class Shooter extends SubsystemBase {
         velFilter.updateValue(robot.shooterLeft.getCorrectedVelocity());
         currentVelo = velFilter.getFilteredOutput();
 
+        robot.flightRecorder.addLine("<b>Shooter</b>");
+        robot.flightRecorder.addData("Shooter mode", mode);
         switch (mode) {
             case RAW:
                 rawMode();
@@ -135,7 +141,7 @@ public class Shooter extends SubsystemBase {
         robot.shooterLeft.set(-output);
         robot.shooterRight.set(-output);
 
-        robot.flightRecorder.addData("distance to goal", distanceToGoal);
+        robot.flightRecorder.addData("Compensated distance (ft)", distanceToGoal);
         logData(currentVelocity);
     }
 
@@ -147,11 +153,9 @@ public class Shooter extends SubsystemBase {
     private void logData(double velo) {
 
         double distanceToGoal = Range.clip(robot.drive.getAimTarget().distance, MIN_SHOT_DISTANCE_FT, MAX_SHOT_DISTANCE_FT);
-        robot.flightRecorder.addData("distance to goal", distanceToGoal);
-        robot.flightRecorder.addLine("========SHOOTER========");
-        robot.flightRecorder.addData("Flywheel Target velocity", targetVelocityTicks);
-        robot.flightRecorder.addData("Flywheel Current velocity", velo);
-        robot.flightRecorder.addData("average ms", averager.getAvgMs());
+        robot.flightRecorder.addData("Target distance (ft)", distanceToGoal);
+        robot.flightRecorder.addData("Flywheel target (ticks/s)", targetVelocityTicks);
+        robot.flightRecorder.addData("Flywheel velocity (ticks/s)", velo);
     }
 
     public boolean isAtTargetVelocity() {

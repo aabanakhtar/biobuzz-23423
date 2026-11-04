@@ -98,6 +98,10 @@ public class MecanumDrive extends SubsystemBase {
         follower.update();
     }
 
+    public double getAverageLoopMs() {
+        return averager.getAvgMs();
+    }
+
     @Override
     public void periodic() {
         averager.mark();
@@ -106,15 +110,14 @@ public class MecanumDrive extends SubsystemBase {
 
         Pose hiveTarget = selectHiveTarget(lastPose, Ashwing.alliance);
         lastAimTarget = calculateAimTarget(lastPose, hiveTarget, TURRET_OFFSET);
+        robot.flightRecorder.addLine("<b>Drivetrain</b>");
         robot.flightRecorder.addData("Hive target", lastPose.y() > FIELD_MIDLINE ? "upper" : "lower");
-        robot.flightRecorder.addData("Hive X", hiveTarget.x());
-        robot.flightRecorder.addData("Hive Y", hiveTarget.y());
-        robot.flightRecorder.addLine("======DRIVETRAIN:=======");
-        robot.flightRecorder.addData("goal heading", lastAimTarget.heading);
-        robot.flightRecorder.addData("X:", lastPose.x());
-        robot.flightRecorder.addData("Y:", lastPose.y());
-        robot.flightRecorder.addData("Heading", Math.toDegrees(lastPose.heading()));
-        robot.flightRecorder.addData("avg ms", averager.getAvgMs());
+        robot.flightRecorder.addData("Hive X (in)", hiveTarget.x());
+        robot.flightRecorder.addData("Hive Y (in)", hiveTarget.y());
+        robot.flightRecorder.addData("Aim heading (deg)", lastAimTarget.heading);
+        robot.flightRecorder.addData("Robot X (in)", lastPose.x());
+        robot.flightRecorder.addData("Robot Y (in)", lastPose.y());
+        robot.flightRecorder.addData("Robot heading (deg)", Math.toDegrees(lastPose.heading()));
 
         averager.endMark();
     }

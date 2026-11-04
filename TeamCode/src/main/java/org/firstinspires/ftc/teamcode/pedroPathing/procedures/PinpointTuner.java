@@ -253,9 +253,9 @@ class PinpointOffsets extends TuningOpMode<List<Double>> {
             previous = localizer.pose();
             localizer.update();
 
-            telemetry.addData("heading", localizer.pose().heading());
-            telemetry.addData("pose", localizer.pose());
-            telemetry.addData("previous", previous);
+            telemetry.addData("Heading (rad)", localizer.pose().heading());
+            telemetry.addData("Robot pose", localizer.pose());
+            telemetry.addData("Previous pose", previous);
             telemetry.update();
         }
 

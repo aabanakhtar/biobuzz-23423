@@ -20,6 +20,7 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.device.AbsoluteAnalogEncoder;
 import org.firstinspires.ftc.teamcode.subsystem.Hubs;
 import org.firstinspires.ftc.teamcode.subsystem.Intake;
+import org.firstinspires.ftc.teamcode.subsystem.Descorer;
 import org.firstinspires.ftc.teamcode.subsystem.MecanumDrive;
 import org.firstinspires.ftc.teamcode.subsystem.Shooter;
 import org.firstinspires.ftc.teamcode.subsystem.Turret;
@@ -53,6 +54,7 @@ public class Ashwing {
     public DcMotorEx turretQuadratureEncoder;
     public MotorEx intakeLeft, intakeRight;
     public ServoEx latchServo;
+    public ServoEx descorerServo;
 
     // sensors
     public VoltageSensor batterySensor;
@@ -68,6 +70,7 @@ public class Ashwing {
     public MecanumDrive drive;
     public Shooter shooter;
     public Intake intake;
+    public Descorer descorer;
     public Turret turret;
 
     // for writing logs
@@ -85,6 +88,7 @@ public class Ashwing {
     public void reset() {
         intake.setMode(Intake.Mode.OFF);
         intake.closeLatch();
+        descorer.setMode(Descorer.Mode.STORE);
         intakeLeft.set(0.0);
         intakeRight.set(0.0);
         Turret.targetPower = 0.0;
@@ -139,6 +143,7 @@ public class Ashwing {
         intakeRight.setInverted(INTAKE_RIGHT_REVERSED);
 
         latchServo = new ServoEx(map, LATCH);
+        descorerServo = new ServoEx(map, DESCORER);
 
         // Apply common run modes
         Arrays.asList(shooterLeft, shooterRight, intakeLeft, intakeRight)
@@ -146,6 +151,7 @@ public class Ashwing {
                     x.setRunMode(Motor.RunMode.RawPower);
                 });
 
+        t.setDisplayFormat(Telemetry.DisplayFormat.HTML);
         flightRecorder = new MultipleTelemetry(t);
         lastMeasuredVoltage = batterySensor.getVoltage();
         batteryFilter.updateValue(IDEAL_VOLTAGE / Math.max(lastMeasuredVoltage, MIN_FEEDFORWARD_VOLTAGE));
@@ -154,6 +160,7 @@ public class Ashwing {
         hubs = new Hubs();
         drive = new MecanumDrive(map, pose);
         intake = new Intake();
+        descorer = new Descorer();
         shooter = new Shooter();
         turret = new Turret();
         reset();
@@ -171,15 +178,25 @@ public class Ashwing {
     public void endLoop() {
         // Clear before any scheduler subsystem reads; subsystem iteration order is unspecified.
         hubs.clearCache();
-        flightRecorder.addData(">>>>ALLIANCE", alliance.toString());
+        flightRecorder.addData("Alliance", alliance.toString());
         // sensor update
-        flightRecorder.addData(">>>>BATTERY STATE", lastMeasuredVoltage);
+        flightRecorder.addData("Battery (V)", lastMeasuredVoltage);
 
         lastMeasuredVoltage = batterySensor.getVoltage();
         double safeVoltage = Math.max(lastMeasuredVoltage, MIN_FEEDFORWARD_VOLTAGE);
         batteryFilter.updateValue(IDEAL_VOLTAGE / safeVoltage);
 
         CommandScheduler.getInstance().run();
+        flightRecorder.addLine("<b>Loop timing</b>");
+        double loopSeconds = hubs.getDeltaTime();
+        if (loopSeconds > 0) {
+            flightRecorder.addData("Loop rate (Hz)", 1.0 / loopSeconds);
+        }
+        flightRecorder.addData("Drivetrain average (ms)", drive.getAverageLoopMs());
+        flightRecorder.addData("Shooter average (ms)", shooter.getAverageLoopMs());
+        flightRecorder.addData("Turret average (ms)", turret.getAverageLoopMs());
+        flightRecorder.addData("Intake average (ms)", intake.getAverageLoopMs());
+        flightRecorder.addData("Descorer average (ms)", descorer.getAverageLoopMs());
         flightRecorder.update();
 
     }

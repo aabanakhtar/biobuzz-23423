@@ -26,6 +26,7 @@ public class ShooterTuningOpMode extends OpMode {
         robot = Ashwing.get().init(Ashwing.Mode.TELEOP, Pose.zero(), hardwareMap,
                 new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry()));
         RobotConstants.ShooterTuning.tuning = true;
+        robot.flightRecorder.addLine("<b>Shooter tuning</b>");
         robot.flightRecorder.addLine("Edit ShooterTuningOpMode.TARGET_VELOCITY in FTC Dashboard (ticks/sec).");
         robot.flightRecorder.addLine("Edit PID/feedforward in RobotConstants.ShooterTuning; press START to run.");
         robot.flightRecorder.update();
@@ -35,6 +36,7 @@ public class ShooterTuningOpMode extends OpMode {
     public void loop() {
         double target = Math.max(0.0, TARGET_VELOCITY);
         robot.shooter.setVelocity(target);
+        robot.flightRecorder.addLine("<b>Shooter tuning</b>");
         robot.flightRecorder.addData("Shooter target (ticks/sec)", target);
         robot.flightRecorder.addData("Shooter measured (ticks/sec)", Shooter.currentVelo);
         robot.flightRecorder.addData("Shooter error (ticks/sec)", target - Shooter.currentVelo);

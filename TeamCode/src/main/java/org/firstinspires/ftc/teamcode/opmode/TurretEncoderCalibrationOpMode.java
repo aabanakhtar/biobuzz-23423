@@ -46,9 +46,9 @@ public class TurretEncoderCalibrationOpMode extends OpMode {
         // Earlier OpModes may have left hubs in manual bulk-caching mode.
         hubs.forEach(LynxModule::clearBulkCache);
         analogEncoder.offset = RobotConstants.Sensors.TURRET_ENCODER_OFFSET;
-        telemetry.addData("Analog voltage (V)", analogEncoder.getVoltage());
-        telemetry.addData("Analog angle (deg)", analogEncoder.getCurrentPosition());
-        telemetry.addData("Quadrature ticks", quadraturePort.getCurrentPosition());
+        telemetry.addData("Encoder voltage (V)", analogEncoder.getVoltage());
+        telemetry.addData("Absolute angle (deg)", analogEncoder.getCurrentPosition());
+        telemetry.addData("Quadrature position (ticks)", quadraturePort.getCurrentPosition());
         telemetry.update();
     }
 }

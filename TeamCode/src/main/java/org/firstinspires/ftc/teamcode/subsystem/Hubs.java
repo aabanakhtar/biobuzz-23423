@@ -22,12 +22,6 @@ public class Hubs {
         modules.forEach(LynxModule::clearBulkCache);
 
         dt = timer.seconds();
-        if (dt > 0) {
-            // send info to ftc dash and phone
-            Ashwing.get().flightRecorder.addLine("=====SYSTEM=======");
-            Ashwing.get().flightRecorder.addData("Loop Time, (HZ)", 1.0 / dt);
-        }
-
         timer.reset();
     }
 

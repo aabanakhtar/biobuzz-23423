@@ -29,6 +29,7 @@ public final class RobotConstants {
         public static String INTAKE_LEFT = "intakeLeft";
         public static String INTAKE_RIGHT = "intakeRight";
         public static String LATCH = "latch";
+        public static String DESCORER = "descorer";
         public static boolean SHOOTER_LEFT_REVERSED = true;
         public static boolean SHOOTER_RIGHT_REVERSED = false;
         public static boolean TURRET_LEFT_REVERSED = false;
@@ -43,6 +44,12 @@ public final class RobotConstants {
         public static double DISCARD_MOTOR_SPEED = 0.0;
         public static double INTAKE_LATCH_OPEN_POSITION = 0.0;
         public static double INTAKE_LATCH_CLOSE_POSITON = 0.0;
+    }
+
+    @Config
+    public static class DescorerTuning {
+        public static double DEPLOY_POSITION = 1.0;
+        public static double STORE_POSITION = 0.0;
     }
 
     @Config

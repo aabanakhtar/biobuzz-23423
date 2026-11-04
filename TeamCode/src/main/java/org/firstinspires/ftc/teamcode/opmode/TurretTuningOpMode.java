@@ -30,6 +30,7 @@ public class TurretTuningOpMode extends OpMode {
         robot = Ashwing.get().init(Ashwing.Mode.TELEOP, Pose.zero(), hardwareMap,
                 new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry()));
         RobotConstants.TurretTuning.tuning = true;
+        robot.flightRecorder.addLine("<b>Turret tuning</b>");
         robot.flightRecorder.addLine("Set turret encoder calibration and PID in RobotConstants.TurretTuning.");
         robot.flightRecorder.addLine("Press START to alternate turret angles; STOP halts all outputs.");
         robot.flightRecorder.update();
@@ -49,6 +50,7 @@ public class TurretTuningOpMode extends OpMode {
             timer.reset();
         }
         robot.turret.setMode(Turret.Mode.DEBUG);
+        robot.flightRecorder.addLine("<b>Turret tuning</b>");
         robot.flightRecorder.addData("Turret target (deg)", Turret.targetAngle);
         robot.flightRecorder.addData("Turret measured (deg)", Turret.getLastAngle());
         robot.flightRecorder.addData("Turret error (deg)", Turret.targetAngle - Turret.getLastAngle());
