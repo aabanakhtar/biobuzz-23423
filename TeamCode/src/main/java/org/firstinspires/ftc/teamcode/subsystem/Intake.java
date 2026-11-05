@@ -2,13 +2,13 @@ package org.firstinspires.ftc.teamcode.subsystem;
 
 import static org.firstinspires.ftc.teamcode.RobotConstants.IntakeTuning.*;
 
-import com.bylazar.configurables.annotations.Configurable;
+import com.acmerobotics.dashboard.config.Config;
 import com.seattlesolvers.solverslib.command.SubsystemBase;
 
 import org.firstinspires.ftc.teamcode.robot.Ashwing;
 import org.firstinspires.ftc.teamcode.utilities.SubsystemLooptimeAverager;
 
-@Configurable
+@Config
 public class Intake extends SubsystemBase {
     private final SubsystemLooptimeAverager averager = new SubsystemLooptimeAverager();
 

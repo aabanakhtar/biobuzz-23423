@@ -48,7 +48,7 @@ public final class RobotConstants {
 
     @Config
     public static class DescorerTuning {
-        public static double DEPLOY_POSITION = 1.0;
+        public static double DEPLOY_POSITION = 0.42;
         public static double STORE_POSITION = 0.0;
     }
 
