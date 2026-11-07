@@ -16,8 +16,7 @@ import org.firstinspires.ftc.teamcode.subsystem.Descorer;
 @Config
 @TeleOp(name = "Tune: Descorer", group = "Tuning")
 public class DescorerTuningOpMode extends OpMode {
-    public static Descorer.Mode TARGET_MODE = Descorer.Mode.STORE;
-
+    public static boolean down = false;
     private ServoEx actuator;
 
     @Override
@@ -29,9 +28,9 @@ public class DescorerTuningOpMode extends OpMode {
 
     @Override
     public void loop() {
-        double position = TARGET_MODE == Descorer.Mode.DEPLOY ? DEPLOY_POSITION : STORE_POSITION;
+        double position = down ? DEPLOY_POSITION : STORE_POSITION;
         actuator.set(position);
-        telemetry.addData("Selected mode", TARGET_MODE);
+        telemetry.addData("Selected mode", down);
         telemetry.addData("Commanded position", position);
         telemetry.update();
     }

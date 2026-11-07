@@ -14,6 +14,7 @@ public class Intake extends SubsystemBase {
 
     public enum Mode {
         INGEST,
+        SLOW_INGEST,
         DISCARD,
         OFF
     }
@@ -46,6 +47,10 @@ public class Intake extends SubsystemBase {
         switch (mode) {
             case INGEST:
                 setMotorPower(INGEST_MOTOR_SPEED * robot.getVoltageFeedforwardConstant());
+                break;
+
+            case SLOW_INGEST:
+                setMotorPower(INGEST_MOTOR_SPEED * SLOW_INGEST_MULTIPLIER * robot.getVoltageFeedforwardConstant());
                 break;
 
             case DISCARD:

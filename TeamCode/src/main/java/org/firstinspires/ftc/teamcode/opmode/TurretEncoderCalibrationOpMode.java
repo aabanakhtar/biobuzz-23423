@@ -5,6 +5,7 @@ import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 
 import org.firstinspires.ftc.teamcode.RobotConstants;
@@ -27,6 +28,7 @@ public class TurretEncoderCalibrationOpMode extends OpMode {
                 RobotConstants.Sensors.TURRET_ENCODER_OFFSET);
         quadraturePort = hardwareMap.get(DcMotorEx.class,
                 RobotConstants.Sensors.TURRET_QUADRATURE_MOTOR_NAME);
+        quadraturePort.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         hubs = hardwareMap.getAll(LynxModule.class);
         hubs.forEach(LynxModule::clearBulkCache);
         reportEncoders();

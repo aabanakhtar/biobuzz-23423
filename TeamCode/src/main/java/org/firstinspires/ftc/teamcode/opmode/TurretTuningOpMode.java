@@ -28,7 +28,7 @@ public class TurretTuningOpMode extends OpMode {
     @Override
     public void init() {
         robot = Ashwing.get().init(Ashwing.Mode.TELEOP, Pose.zero(), hardwareMap,
-                new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry()));
+                new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry()), true);
         RobotConstants.TurretTuning.tuning = true;
         robot.flightRecorder.addLine("<b>Turret tuning</b>");
         robot.flightRecorder.addLine("Set turret encoder calibration and PID in RobotConstants.TurretTuning.");
@@ -61,7 +61,6 @@ public class TurretTuningOpMode extends OpMode {
     public void stop() {
         if (robot != null) {
             robot.reset();
-            robot.drive.follower.stop();
         }
         RobotConstants.TurretTuning.tuning = false;
         CommandScheduler.getInstance().reset();

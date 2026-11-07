@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.subsystem;
 
 import static org.firstinspires.ftc.teamcode.RobotConstants.TurretTuning.*;
+import static org.firstinspires.ftc.teamcode.RobotConstants.Sensors.TURRET_ENCODER_OFFSET;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.seattlesolvers.solverslib.command.SubsystemBase;
@@ -31,7 +32,7 @@ public class Turret extends SubsystemBase {
     private final PIDFController turretAnglePID = new PIDFController(kP, kI, kD, 0);
 
     // for relocalizing turret
-    private double TURRET_HOME_OFFSET = 0;
+    private double TURRET_QUAD_HOME_OFFSET = 0;
     private double quadratureZeroPosition = 0;
     private static double lastAngle = 0;
     private final SubsystemLooptimeAverager averager = new SubsystemLooptimeAverager();
@@ -41,7 +42,7 @@ public class Turret extends SubsystemBase {
     }
 
     public void loadAngle(double angle) {
-        TURRET_HOME_OFFSET = angle;
+        TURRET_QUAD_HOME_OFFSET = angle;
         // Software zero avoids resetting a motor encoder that may serve another mechanism.
         quadratureZeroPosition = robot.turretQuadratureEncoder.getCurrentPosition();
         lastAngle = angle;
@@ -60,38 +61,29 @@ public class Turret extends SubsystemBase {
     public void periodic() {
         averager.mark();
         robot.flightRecorder.addLine("<b>Turret</b>");
-        TURRET_ENCODER_CPR = ENCODER_PPR * GEAR_RATIO;
-        if (!Double.isFinite(TURRET_ENCODER_CPR) || TURRET_ENCODER_CPR <= 0) {
-            setPower(0.0);
-            robot.flightRecorder.addLine("Turret encoder calibration required");
-            averager.endMark();
-            return;
-        }
 
+        mode = pendingMode;
+        robot.turretEncoder.offset = TURRET_ENCODER_OFFSET;
         final double absAngle = robot.turretEncoder.getCurrentPosition();
-        final double rawQuad = (robot.turretQuadratureEncoder.getCurrentPosition() - quadratureZeroPosition);
-        // always use quadrature
-        boolean isOutOfSafeRange = Math.abs(absAngle) > TURRET_SAFE_ZONE;
 
-        // ensure that we're safe, not moving, etc.
-        if (!isOutOfSafeRange) {
-            double rawQuadAngle =
-                    (rawQuad / TURRET_ENCODER_CPR) * 360.0;
-            TURRET_HOME_OFFSET = absAngle - rawQuadAngle;
+        if (mode == Mode.DEBUG) {
+            lastAngle = absAngle;
+        } else {
+            final double rawQuad = robot.turretQuadratureEncoder.getCurrentPosition() - quadratureZeroPosition;
+            if (Math.abs(absAngle) <= TURRET_SAFE_ZONE) {
+                double rawQuadAngle = (rawQuad / TURRET_ENCODER_CPR) * 360.0;
+                TURRET_QUAD_HOME_OFFSET = absAngle - rawQuadAngle;
+            }
+            lastAngle = calculateAngleFromEncoder();
         }
 
-        final double quadratureAngle = calculateAngleFromEncoder();
-        lastAngle = quadratureAngle;
-
-        robot.flightRecorder.addData("Quadrature angle (deg)", quadratureAngle);
+        robot.flightRecorder.addData("Turret angle (deg)", lastAngle);
 
         if (tuning) {
             turretAnglePID.setPIDF(kP, kI, kD, 0);
             turretAnglePID.setTolerance(TURRET_PID_TOLERANCE);
         }
 
-        // update the queued mode
-        mode = pendingMode;
         switch (mode) {
             case RAW:
                 setPower(targetPower);
@@ -118,11 +110,11 @@ public class Turret extends SubsystemBase {
                 robot.flightRecorder.addData("Tracking target (deg)", rawTarget);
 
                 // constrain our angles
-                double constrainedAngleDeg = Math.max(-TURRET_MAX_ANGLE, Math.min(TURRET_MAX_ANGLE, compensatedTarget + offset_angle));
-                double power = turretAnglePID.calculate(quadratureAngle, constrainedAngleDeg);
+                double constrainedAngleDeg = Math.max(-TURRET_MAX_ANGLE, Math.min(TURRET_MAX_ANGLE, compensatedTarget));
+                double power = turretAnglePID.calculate(lastAngle, constrainedAngleDeg);
                 power += Math.signum(power) * kS;
 
-                if ((power > 0 && quadratureAngle > TURRET_MAX_ANGLE) || (power < 0 && quadratureAngle < -TURRET_MAX_ANGLE) || turretAnglePID.atSetPoint()) {
+                if ((power > 0 && lastAngle > TURRET_MAX_ANGLE) || (power < 0 && lastAngle < -TURRET_MAX_ANGLE)) {
                     setPower(0.0);
                     break;
                 }
@@ -133,7 +125,9 @@ public class Turret extends SubsystemBase {
 
             // Debug purposes only
             case DEBUG: {
-                double power = turretAnglePID.calculate(quadratureAngle, targetAngle);
+                double power = turretAnglePID.calculate(absAngle, targetAngle);
+                power += Math.signum(power) * kS;
+                robot.flightRecorder.addData("debug power", power);
                 setPower(power);
                 break;
             }
@@ -170,6 +164,6 @@ public class Turret extends SubsystemBase {
     private double calculateAngleFromEncoder() {
         // results in 90 <---- 0 -----> -90
         double encoderPos = (robot.turretQuadratureEncoder.getCurrentPosition() - quadratureZeroPosition);
-        return TURRET_HOME_OFFSET + (encoderPos / TURRET_ENCODER_CPR) * 360.0;
+        return TURRET_QUAD_HOME_OFFSET + (encoderPos / TURRET_ENCODER_CPR) * 360.0;
     }
 }
