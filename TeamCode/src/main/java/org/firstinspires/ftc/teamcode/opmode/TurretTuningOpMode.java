@@ -18,7 +18,7 @@ import org.firstinspires.ftc.teamcode.subsystem.Turret;
 @TeleOp(name = "Tune: Turret PID", group = "Tuning")
 public class TurretTuningOpMode extends OpMode {
     /** Total angular span, centered on zero. */
-    public static double RANGE_DEGREES = 20.0;
+    public static double RANGE_DEGREES = 45.0;
     // How often to flip
     public static double STEP_SECONDS = 1.5;
 
