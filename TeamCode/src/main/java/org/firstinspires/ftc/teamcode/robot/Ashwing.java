@@ -7,7 +7,6 @@ import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.pedropathing.math.Pose;
 import com.qualcomm.hardware.lynx.LynxModule;
-import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
@@ -120,7 +119,8 @@ public class Ashwing {
 
         turretEncoder = new AbsoluteAnalogEncoder(hardwareMap, TURRET_ANALOG_ENCODER, TURRET_ENCODER_OFFSET);
         turretQuadratureEncoder = map.get(DcMotorEx.class, TURRET_QUADRATURE_MOTOR_NAME);
-        turretQuadratureEncoder.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        // The encoder socket may belong to a drive motor. loadAngle() supplies
+        // a software zero without changing that motor's power or run mode.
 
         // Opposing continuous-rotation servos drive the turret together.
         turretLeft = new CRServo(map, TURRET_LEFT);
@@ -131,7 +131,6 @@ public class Ashwing {
         t.setDisplayFormat(Telemetry.DisplayFormat.HTML);
         flightRecorder = new MultipleTelemetry(t);
         hubs = new Hubs();
-        turret = new Turret();
 
         lastMeasuredVoltage = IDEAL_VOLTAGE;
 
@@ -163,6 +162,9 @@ public class Ashwing {
             intake = new Intake();
             descorer = new Descorer();
         }
+        // SolversLib runs subsystem periodic methods in registration order.
+        // Register the turret after the drive so tracking uses this loop's pose.
+        turret = new Turret();
         reset();
         return inst;
     }

@@ -10,6 +10,7 @@ import com.seattlesolvers.solverslib.command.CommandScheduler;
 
 import org.firstinspires.ftc.teamcode.RobotConstants;
 import org.firstinspires.ftc.teamcode.robot.Ashwing;
+import org.firstinspires.ftc.teamcode.subsystem.Intake;
 import org.firstinspires.ftc.teamcode.subsystem.Shooter;
 
 /** Fixed velocity tuning, independent of the distance interpolation table. */
@@ -29,14 +30,17 @@ public class ShooterTuningOpMode extends OpMode {
         robot.flightRecorder.addLine("<b>Shooter tuning</b>");
         robot.flightRecorder.addLine("Edit ShooterTuningOpMode.TARGET_VELOCITY in FTC Dashboard (ticks/sec).");
         robot.flightRecorder.addLine("Edit PID/feedforward in RobotConstants.ShooterTuning; press START to run.");
+        robot.flightRecorder.addLine("Hold gamepad 1 A to run the intake; release to stop.");
         robot.flightRecorder.update();
     }
 
     @Override
     public void loop() {
-        double target = Math.max(0.0, TARGET_VELOCITY);
+        double target = TARGET_VELOCITY;
         robot.shooter.setVelocity(target);
+        robot.intake.setMode(gamepad1.a ? Intake.Mode.INGEST : Intake.Mode.OFF);
         robot.flightRecorder.addLine("<b>Shooter tuning</b>");
+        robot.flightRecorder.addData("Intake (hold A)", gamepad1.a ? "Running" : "Off");
         robot.flightRecorder.addData("Shooter target (ticks/sec)", target);
         robot.flightRecorder.addData("Shooter measured (ticks/sec)", Shooter.currentVelo);
         robot.flightRecorder.addData("Shooter error (ticks/sec)", target - Shooter.currentVelo);

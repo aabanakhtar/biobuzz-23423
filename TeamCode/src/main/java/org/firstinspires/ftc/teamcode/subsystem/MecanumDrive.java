@@ -22,8 +22,9 @@ public class MecanumDrive extends SubsystemBase {
     private SubsystemLooptimeAverager averager = new SubsystemLooptimeAverager();
     private Ashwing robot = Ashwing.get();
 
+    /** Relocalize at the field origin using the existing heading-reset control. */
     public Command resetHeading() {
-        return new InstantCommand(() -> follower.setHeading(0), this);
+        return new InstantCommand(() -> follower.setPose(new Pose(0, 0, 0)), this);
     }
 
     public double getRadialVelocityToGoal() {

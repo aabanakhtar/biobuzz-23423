@@ -47,6 +47,28 @@ Select Custom in the OctoQuad tuner and verify the measured travel before accept
 - https://shop.swyftrobotics.com/products/swyft-linear-odometry-module
 - https://cdn.shopify.com/s/files/1/0875/8486/6598/files/swyft_encoder_gobilda_pinpoint_example_code.java?v=1764901678
 
+## Competition TeleOp
+
+Select `TeleOp` (`opmode/SinglePlayerDrive.java`), adapted from
+`aabanakhtar/decode-23532` commit `1cede61ca6be3f323e2c630447892d1859af8e0f`.
+It uses Ashwing hardware, Pedro 3 robot-centric drive and the existing turret tracking.
+The source robot's Limelight and mechanical turret-homing dependencies are replaced
+by Ashwing's encoder initialization and tracking startup.
+
+Gamepad 1 controls:
+
+- Left stick: robot-centric translation on either alliance; right stick X: turn at full stick input.
+- Hold A: intake; hold B: slow intake; hold X: reverse intake. Release to stop.
+- Right bumper: run the shooting sequence (spin up, open latch, feed, idle, close latch).
+- OPTIONS: toggle heading lock. Adjust `SinglePlayerDrive.headingLockTarget` in Dashboard (radians).
+- SHARE: reset localization to X=0, Y=0, heading=0 on either alliance. Place the robot at that known pose before pressing.
+- D-pad left/right: add/subtract 3 degrees of turret aiming trim; D-pad up: clear trim.
+
+Select alliance through `Ashwing.alliance` in Dashboard. The shooting sequence uses
+`RobotConstants.ShooterTuning.DISTANCE_VELOCITY_POINTS`, with zero-velocity placeholders
+at every integer distance from 0 through 15 feet. Replace these with measured velocities
+and restart initialization to rebuild interpolation. `TRANSFER_DELAY_MS` controls intake feed duration.
+
 ## Mechanism tuning OpModes
 
 Both OpModes initialize the complete Ashwing robot and use the configured OctoQuad localizer.

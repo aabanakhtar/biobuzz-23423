@@ -112,8 +112,8 @@ public class Shooter extends SubsystemBase {
                 kV * targetVelocityTicks * robot.getVoltageFeedforwardConstant();
 
         Shooter.currentVelo = currentVelocity;
-        robot.shooterLeft.set(-output);
-        robot.shooterRight.set(-output);
+        robot.shooterLeft.set(output);
+        robot.shooterRight.set(output);
 
         logData(currentVelocity);
     }
@@ -138,8 +138,8 @@ public class Shooter extends SubsystemBase {
         double output = flywheelVelocityPID.calculate(currentVelocity, optimalVelocityForDist) * robot.getVoltageFeedforwardConstant()
                 + kV * optimalVelocityForDist * robot.getVoltageFeedforwardConstant();
 
-        robot.shooterLeft.set(-output);
-        robot.shooterRight.set(-output);
+        robot.shooterLeft.set(output);
+        robot.shooterRight.set(output);
 
         robot.flightRecorder.addData("Compensated distance (ft)", distanceToGoal);
         logData(currentVelocity);

@@ -26,8 +26,8 @@ public final class RobotConstants {
         public static String TURRET_LEFT = "turret1";
         public static String TURRET_RIGHT = "turret2";
         public static String TURRET_ANALOG_ENCODER = "turretAbs";
-        public static String INTAKE_LEFT = "intakeLeft";
-        public static String INTAKE_RIGHT = "intakeRight";
+        public static String INTAKE_LEFT = "intake1";
+        public static String INTAKE_RIGHT = "intake2";
         public static String LATCH = "latch";
         public static String DESCORER = "descorer";
         public static boolean SHOOTER_LEFT_REVERSED = true;
@@ -74,18 +74,23 @@ public final class RobotConstants {
     @Config
     public static class ShooterTuning {
         // Rows are {distance in feet, flywheel velocity in ticks/second}, in increasing distance order.
-        // Add at least two measured points, then reinitialize the robot to rebuild interpolation.
-        public static double[][] DISTANCE_VELOCITY_POINTS = {};
+        // Placeholder velocities: replace with measured values, then reinitialize to rebuild interpolation.
+        public static double[][] DISTANCE_VELOCITY_POINTS = {
+                {0, 0}, {1, 0}, {2, 0}, {3, 0},
+                {4, 0}, {5, 0}, {6, 0}, {7, 0},
+                {8, 0}, {9, 0}, {10, 0}, {11, 0},
+                {12, 0}, {13, 0}, {14, 0}, {15, 0}
+        };
         public static int VELOCITY_FILTER_SAMPLES = 3;
-        public static double MIN_SHOT_DISTANCE_FT = 1.0;
+        public static double MIN_SHOT_DISTANCE_FT = 0.0;
         public static double MAX_SHOT_DISTANCE_FT = 15.0;
         // Enable to apply Dashboard PID/tolerance edits each loop.
         public static boolean tuning = false;
         public static double IDLE_VELOCITY = 0.0;
         public static double kV = 0.0;
         public static double kP = 0.0;
-        public static double kI = 0.0;
-        public static double kD = 0.000;
+        public static double kI = -0.005;
+        public static double kD = -0.00038;
         public static double VELOCITY_TOLERANCE = 0.0;
         public static double PREDICT_FACTOR = 0.0; // Shooting-on-the-move radial compensation.
         public static double SHOT_OFFSET = 0.0;
@@ -97,9 +102,9 @@ public final class RobotConstants {
         public static boolean tuning = false;
         public static double PREDICT_FACTOR = 0.0;
         public static double kS = 0;
-        public static double kP = 0.03;
+        public static double kP = 0.01;
         public static double kI = 0.0;
-        public static double kD = 0.0019;
+        public static double kD = 0.0003;
         public static double GEAR_RATIO = 1; // encoder-shaft rotations per turret rotation
         public static double ENCODER_PPR = 4000.0;
         public static double TURRET_ENCODER_CPR = ENCODER_PPR * GEAR_RATIO; // Configure for the new encoder and gearing.
@@ -140,10 +145,10 @@ public final class RobotConstants {
             c.frontRightName.set("frontRight");
             c.backRightName.set("backRight");
 
-            c.frontLeftDirection.set(DcMotorSimple.Direction.FORWARD);
-            c.backLeftDirection.set(DcMotorSimple.Direction.FORWARD);
-            c.frontRightDirection.set(DcMotorSimple.Direction.REVERSE);
-            c.backRightDirection.set(DcMotorSimple.Direction.REVERSE);
+            c.frontLeftDirection.set(DcMotorSimple.Direction.REVERSE);
+            c.backLeftDirection.set(DcMotorSimple.Direction.REVERSE);
+            c.frontRightDirection.set(DcMotorSimple.Direction.FORWARD);
+            c.backRightDirection.set(DcMotorSimple.Direction.FORWARD);
 
             c.manualBrakeMode.set(false);
         });
@@ -151,21 +156,45 @@ public final class RobotConstants {
         // Run the OctoQuad Custom-pod tuner; replace this block with its calibrated output.
         public static OctoQuadConfig localizerConfig = new OctoQuadConfig(c -> {
             c.name.set("octoquad");
-            c.xPodPort.set(0); // Forward pod; change to match the physical OctoQuad port.
-            c.yPodPort.set(1); // Strafe pod; change to match the physical OctoQuad port.
+            c.xPodPort.set(1);
+            c.yPodPort.set(0);
+            c.ticksPerUnit.set(863.0);
+            c.xPodOffset.set(-3.0118110236220472);
+            c.yPodOffset.set(-6.535433070866143);
             c.xPodDirection.set(OctoQuad.EncoderDirection.FORWARD);
             c.yPodDirection.set(OctoQuad.EncoderDirection.FORWARD);
-            c.offsetUnits.set(DistanceUnit.INCH);
             c.globalDistanceUnit.set(DistanceUnit.INCH);
-            c.encoderResolutionUnit.set(DistanceUnit.INCH);
-            // SWYFT's official example uses 4096 / (PI * 38 mm); validate with a measured push.
-            c.ticksPerUnit.set(SWYFT_COUNTS_PER_REV / (Math.PI * SWYFT_WHEEL_DIAMETER_MM / 25.4));
-            c.headingScalar.set(1.0);
+            c.offsetUnits.set(DistanceUnit.INCH);
             c.i2cRecoveryMode.set(OctoQuad.I2cRecoveryMode.MODE_1_PERIPH_RST_ON_FRAME_ERR);
+            c.headingScalar.set(1.0251925925074825);
         });
 
-        public static ForesightConfig foresightConfig = new ForesightConfig(c -> {
-        });
+
+        public static ForesightConfig foresightConfig = new ForesightConfig(
+                c -> {
+                    Controller primaryTranslationalForward = Controller.proportional(0.8578487635687276);
+                    Controller secondaryTranslationalForward = Controller.proportional(0.31695219599751917);
+                    Controller primaryTranslationalLateral = Controller.proportional(3.8998092863708047);
+                    Controller secondaryTranslationalLateral = Controller.proportional(1.4408753264907128);
+
+                    c.forwardTranslational.set(Controller.piecewise(secondaryTranslationalForward).put(2.5, primaryTranslationalForward));
+                    c.strafeTranslational.set(Controller.piecewise(secondaryTranslationalLateral).put(2.5, primaryTranslationalLateral));
+
+                    c.coast.set(Controller.proportionalFeedforward(0.02351254238809543));
+                    c.brake.set(Controller.proportionalFeedforward(0.019985661029881117));
+
+                    c.headingFeedback.set(Controller.proportional(16.097172981232497));
+                    c.headingBrakeCoefficients.set(Vector2D.cartesian(0.030934149835709503, 0.006769229206772925));
+
+                    c.linearBrakeCoefficients.set(Matrix.diag(0.03497176983080196, 0.019992395296432694));
+                    c.quadraticBrakeCoefficients.set(Matrix.diag(0.002140917581560157, 0.002255185682361066));
+
+                    c.maxAchievableForwardVelocity.set(64.45037764281078);
+                    c.maxAchievableStrafeVelocity.set(50.42337088596487);
+                    c.naturalForwardDeceleration.set(83.78884252853261);
+                    c.naturalStrafeDeceleration.set(108.30375940124887);
+                }
+        );
 
     }
 }

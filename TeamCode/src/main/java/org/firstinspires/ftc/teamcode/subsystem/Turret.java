@@ -28,6 +28,7 @@ public class Turret extends SubsystemBase {
 
     public static double targetPower = 0.0;
     public static double targetAngle = 0.0;
+    public static double offset_angle = 0.0;
 
     private final PIDFController turretAnglePID = new PIDFController(kP, kI, kD, 0);
 
@@ -65,11 +66,12 @@ public class Turret extends SubsystemBase {
         mode = pendingMode;
         robot.turretEncoder.offset = TURRET_ENCODER_OFFSET;
         final double absAngle = robot.turretEncoder.getCurrentPosition();
+        final double rawQuad = robot.turretQuadratureEncoder.getCurrentPosition() - quadratureZeroPosition;
+        final boolean usingAbsolute = mode == Mode.DEBUG || Math.abs(absAngle) <= TURRET_SAFE_ZONE;
 
         if (mode == Mode.DEBUG) {
             lastAngle = absAngle;
         } else {
-            final double rawQuad = robot.turretQuadratureEncoder.getCurrentPosition() - quadratureZeroPosition;
             if (Math.abs(absAngle) <= TURRET_SAFE_ZONE) {
                 double rawQuadAngle = (rawQuad / TURRET_ENCODER_CPR) * 360.0;
                 TURRET_QUAD_HOME_OFFSET = absAngle - rawQuadAngle;
@@ -78,6 +80,11 @@ public class Turret extends SubsystemBase {
         }
 
         robot.flightRecorder.addData("Turret angle (deg)", lastAngle);
+        robot.flightRecorder.addData("Turret absolute angle (deg)", absAngle);
+        robot.flightRecorder.addData("Turret mode", mode);
+        robot.flightRecorder.addData("Turret feedback", usingAbsolute ? "Absolute" : "Quadrature fallback");
+        robot.flightRecorder.addData("Turret quadrature ticks from zero", rawQuad);
+        robot.flightRecorder.addData("Turret encoder voltage", robot.turretEncoder.getVoltage());
 
         if (tuning) {
             turretAnglePID.setPIDF(kP, kI, kD, 0);
@@ -106,18 +113,15 @@ public class Turret extends SubsystemBase {
 
                 // filter our target
                 double rawTarget = robot.drive.getAimTarget().heading;
-                double compensatedTarget = rawTarget - predictedLeadOffset;
+                double compensatedTarget = rawTarget - predictedLeadOffset + offset_angle;
                 robot.flightRecorder.addData("Tracking target (deg)", rawTarget);
 
                 // constrain our angles
                 double constrainedAngleDeg = Math.max(-TURRET_MAX_ANGLE, Math.min(TURRET_MAX_ANGLE, compensatedTarget));
+                robot.flightRecorder.addData("Turret commanded angle (deg)", constrainedAngleDeg);
+                robot.flightRecorder.addData("Turret error (deg)", constrainedAngleDeg - lastAngle);
                 double power = turretAnglePID.calculate(lastAngle, constrainedAngleDeg);
                 power += Math.signum(power) * kS;
-
-                if ((power > 0 && lastAngle > TURRET_MAX_ANGLE) || (power < 0 && lastAngle < -TURRET_MAX_ANGLE)) {
-                    setPower(0.0);
-                    break;
-                }
 
                 setPower(power);
                 break;
@@ -141,12 +145,15 @@ public class Turret extends SubsystemBase {
     private void setPower(double power) {
         double output = Double.isFinite(power) ? Math.max(-1.0, Math.min(1.0, power)) : 0.0;
         // Apply the travel limit in every mode, including raw and debug commands.
-        if ((output > 0 && lastAngle >= TURRET_MAX_ANGLE)
-                || (output < 0 && lastAngle <= -TURRET_MAX_ANGLE)) {
+        boolean limitBlocked = (output > 0 && lastAngle >= TURRET_MAX_ANGLE)
+                || (output < 0 && lastAngle <= -TURRET_MAX_ANGLE);
+        if (limitBlocked) {
             output = 0.0;
         }
         robot.turretLeft.set(output);
         robot.turretRight.set(output);
+        robot.flightRecorder.addData("Turret output", output);
+        robot.flightRecorder.addData("Turret travel limit blocked", limitBlocked);
     }
 
     public void setMode(Mode amode) {

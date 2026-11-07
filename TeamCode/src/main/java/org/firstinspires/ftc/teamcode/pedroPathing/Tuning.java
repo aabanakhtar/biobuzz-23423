@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.pedroPathing;
 import com.pedropathing.algorithm.Foresight;
 import org.firstinspires.ftc.teamcode.RobotConstants.Pedro;
 import com.pedropathing.revhub.drivetrains.Mecanum;
+import com.pedropathing.revhub.localizers.OctoQuadLocalizer;
 import com.pedropathing.tuning.autotune.Procedure;
 import com.pedropathing.tuning.autotune.Tuner;
 
@@ -34,6 +35,11 @@ public class Tuning {
     }
 
     @Tuner
+    public static Procedure tests() {
+        return new Tests(hardwareMap -> new Mecanum(hardwareMap, Pedro.drivetrainConfig), hardwareMap -> new OctoQuadLocalizer(hardwareMap, Pedro.localizerConfig), null);
+    }
+
+    @Tuner
     public static Procedure foresightTuner() {
         return new ForesightTuner(
                 Constants::createLocalizer,
@@ -41,12 +47,4 @@ public class Tuning {
         );
     }
 
-    @Tuner
-    public static Procedure tests() {
-        return new Tests(
-                hardwareMap -> new Mecanum(hardwareMap, Pedro.drivetrainConfig),
-                Constants::createLocalizer,
-                () -> new Foresight(Pedro.foresightConfig)
-        );
-    }
 }
