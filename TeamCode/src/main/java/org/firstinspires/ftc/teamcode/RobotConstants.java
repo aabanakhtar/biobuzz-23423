@@ -92,7 +92,6 @@ public final class RobotConstants {
         public static double kI = -0.005;
         public static double kD = -0.00038;
         public static double VELOCITY_TOLERANCE = 0.0;
-        public static double PREDICT_FACTOR = 0.0; // Shooting-on-the-move radial compensation.
         public static double SHOT_OFFSET = 0.0;
     }
 
@@ -100,26 +99,23 @@ public final class RobotConstants {
     public static class TurretTuning {
         // Enable to apply Dashboard PID/tolerance edits each loop.
         public static boolean tuning = false;
-        public static double PREDICT_FACTOR = 0.0;
         public static double kS = 0;
-        public static double kP = 0.01;
+        public static double kP = 0.0155000067;
         public static double kI = 0.0;
         public static double kD = 0.0003;
         public static double GEAR_RATIO = 1; // encoder-shaft rotations per turret rotation
         public static double ENCODER_PPR = 4000.0;
         public static double TURRET_ENCODER_CPR = ENCODER_PPR * GEAR_RATIO; // Configure for the new encoder and gearing.
-        public static double TURRET_MAX_ANGLE = 170; // deg
+        public static double TURRET_MAX_ANGLE = 165; // deg
         public static double TURRET_PID_TOLERANCE = 0.0; //deg
-        public static double TURRET_SAFE_ZONE = 165;
+        public static double TURRET_SAFE_ZONE = 175;
     }
 
     @Config
     public static class Aiming {
-        public static double VELOCITY_COMPENSATION_DEADBAND = 3.0; // inches/second
+        public static double TARGET_X = 0.0;
+        public static double TARGET_Y = 0.0;
         public static double TURRET_OFFSET = 0.0;
-        public static double BLUE_UPPER_HIVE_X = 85.0;
-        public static double BLUE_UPPER_HIVE_Y = 85.0;
-        public static final double FIELD_MIDLINE = 72.0;
     }
 
     @Config

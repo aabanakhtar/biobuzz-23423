@@ -127,9 +127,7 @@ public class Shooter extends SubsystemBase {
             return;
         }
         // clip to a distance between 1 and 15
-        double distOffset = PREDICT_FACTOR * robot.drive.getRadialVelocityToGoal() * robot.getVoltageFeedforwardConstant();
-        double distanceToGoal = Range.clip(robot.drive.getAimTarget().distance + distOffset, MIN_SHOT_DISTANCE_FT, MAX_SHOT_DISTANCE_FT);
-        // use radial velo comp
+        double distanceToGoal = Range.clip(robot.drive.getAimTarget().distance, MIN_SHOT_DISTANCE_FT, MAX_SHOT_DISTANCE_FT);
         double optimalVelocityForDist = getOptimalVelocityForDist(distanceToGoal) + SHOT_OFFSET;
         targetVelocityTicks = optimalVelocityForDist;
 
@@ -141,7 +139,7 @@ public class Shooter extends SubsystemBase {
         robot.shooterLeft.set(output);
         robot.shooterRight.set(output);
 
-        robot.flightRecorder.addData("Compensated distance (ft)", distanceToGoal);
+        robot.flightRecorder.addData("Target distance (ft)", distanceToGoal);
         logData(currentVelocity);
     }
 

@@ -109,11 +109,8 @@ public class Turret extends SubsystemBase {
                     turretAnglePID.reset();
                 }
 
-                double predictedLeadOffset = Math.toDegrees(robot.drive.getTangentVelocityToGoal() * PREDICT_FACTOR * robot.getVoltageFeedforwardConstant());
-
-                // filter our target
                 double rawTarget = robot.drive.getAimTarget().heading;
-                double compensatedTarget = rawTarget - predictedLeadOffset + offset_angle;
+                double compensatedTarget = rawTarget + offset_angle;
                 robot.flightRecorder.addData("Tracking target (deg)", rawTarget);
 
                 // constrain our angles
