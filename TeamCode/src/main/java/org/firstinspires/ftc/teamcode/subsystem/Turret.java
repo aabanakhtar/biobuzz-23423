@@ -35,6 +35,7 @@ public class Turret extends SubsystemBase {
     // for relocalizing turret
     private double TURRET_QUAD_HOME_OFFSET = 0;
     private double quadratureZeroPosition = 0;
+    private double quadratureReferencePosition = 0;
     private static double lastAngle = 0;
     private final SubsystemLooptimeAverager averager = new SubsystemLooptimeAverager();
 
@@ -46,6 +47,7 @@ public class Turret extends SubsystemBase {
         TURRET_QUAD_HOME_OFFSET = angle;
         // Software zero avoids resetting a motor encoder that may serve another mechanism.
         quadratureZeroPosition = robot.turretQuadratureEncoder.getCurrentPosition();
+        quadratureReferencePosition = quadratureZeroPosition;
         lastAngle = angle;
         turretAnglePID.reset();
     }
@@ -66,23 +68,30 @@ public class Turret extends SubsystemBase {
         mode = pendingMode;
         robot.turretEncoder.offset = TURRET_ENCODER_OFFSET;
         final double absAngle = robot.turretEncoder.getCurrentPosition();
-        final double rawQuad = robot.turretQuadratureEncoder.getCurrentPosition() - quadratureZeroPosition;
-        final boolean usingAbsolute = mode == Mode.DEBUG || Math.abs(absAngle) <= TURRET_SAFE_ZONE;
+        // getCurrentPosition() already applies the motor port's configured direction.
+        final double quadPosition = robot.turretQuadratureEncoder.getCurrentPosition();
+        final double rawQuad = quadPosition - quadratureZeroPosition;
+        final boolean rehome = mode != Mode.DEBUG && Math.abs(absAngle) <= TURRET_SAFE_ZONE;
 
         if (mode == Mode.DEBUG) {
             lastAngle = absAngle;
         } else {
-            if (Math.abs(absAngle) <= TURRET_SAFE_ZONE) {
-                double rawQuadAngle = (rawQuad / TURRET_ENCODER_CPR) * 360.0;
-                TURRET_QUAD_HOME_OFFSET = absAngle - rawQuadAngle;
+            lastAngle = calculateAngleFromEncoder(quadPosition);
+            if (rehome) {
+                // keep the unwrapped angle continuous while re-anchoring to the absolute sensor.
+                double absoluteEquivalent = absAngle
+                        + 360.0 * Math.round((lastAngle - absAngle) / 360.0);
+                TURRET_QUAD_HOME_OFFSET = absoluteEquivalent;
+                quadratureReferencePosition = quadPosition;
+                lastAngle = absoluteEquivalent;
             }
-            lastAngle = calculateAngleFromEncoder();
         }
 
         robot.flightRecorder.addData("Turret angle (deg)", lastAngle);
         robot.flightRecorder.addData("Turret absolute angle (deg)", absAngle);
         robot.flightRecorder.addData("Turret mode", mode);
-        robot.flightRecorder.addData("Turret feedback", usingAbsolute ? "Absolute" : "Quadrature fallback");
+        robot.flightRecorder.addData("Turret feedback",
+                mode == Mode.DEBUG ? "Absolute" : rehome ? "Absolute rehome" : "Quadrature");
         robot.flightRecorder.addData("Turret quadrature ticks from zero", rawQuad);
         robot.flightRecorder.addData("Turret encoder voltage", robot.turretEncoder.getVoltage());
 
@@ -168,9 +177,8 @@ public class Turret extends SubsystemBase {
         return turretAnglePID.atSetPoint();
     }
 
-    private double calculateAngleFromEncoder() {
-        // results in 90 <---- 0 -----> -90
-        double encoderPos = (robot.turretQuadratureEncoder.getCurrentPosition() - quadratureZeroPosition);
-        return TURRET_QUAD_HOME_OFFSET + (encoderPos / TURRET_ENCODER_CPR) * 360.0;
+    private double calculateAngleFromEncoder(double encoderPosition) {
+        double ticksSinceReference = encoderPosition - quadratureReferencePosition;
+        return TURRET_QUAD_HOME_OFFSET + (ticksSinceReference / TURRET_ENCODER_CPR) * 360.0;
     }
 }

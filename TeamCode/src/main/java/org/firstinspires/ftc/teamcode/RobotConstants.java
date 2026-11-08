@@ -109,15 +109,15 @@ public final class RobotConstants {
         public static double TURRET_ENCODER_CPR = ENCODER_PPR * GEAR_RATIO; // Configure for the new encoder and gearing.
         public static double TURRET_MAX_ANGLE = 165; // deg
         public static double TURRET_PID_TOLERANCE = 0.0; //deg
-        public static double TURRET_SAFE_ZONE = 175;
+        public static double TURRET_SAFE_ZONE = 170;
     }
 
     @Config
     public static class Aiming {
-        public static double TURRET_OFFSET = 0.0;
-        public static double BLUE_UPPER_HIVE_X = 85.0;
-        public static double BLUE_UPPER_HIVE_Y = 85.0;
-        public static double FIELD_MIDLINE = 72.0;
+        public static double TURRET_OFFSET = -.59;
+        public static double BLUE_UPPER_HIVE_X = 84.0;
+        public static double BLUE_UPPER_HIVE_Y = 88.0;
+        public static double FIELD_MIDLINE = 71.5;
     }
 
     @Config
