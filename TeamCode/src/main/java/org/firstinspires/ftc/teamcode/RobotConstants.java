@@ -103,6 +103,7 @@ public final class RobotConstants {
         public static double kP = 0.0155000067;
         public static double kI = 0.0;
         public static double kD = 0.0003;
+        public static double ANGULAR_VELOCITY_FEEDFORWARD = 0.0; // turret output per rad/s of robot rotation
         public static double GEAR_RATIO = 1; // encoder-shaft rotations per turret rotation
         public static double ENCODER_PPR = 4000.0;
         public static double TURRET_ENCODER_CPR = ENCODER_PPR * GEAR_RATIO; // Configure for the new encoder and gearing.
@@ -113,9 +114,10 @@ public final class RobotConstants {
 
     @Config
     public static class Aiming {
-        public static double TARGET_X = 0.0;
-        public static double TARGET_Y = 0.0;
         public static double TURRET_OFFSET = 0.0;
+        public static double BLUE_UPPER_HIVE_X = 85.0;
+        public static double BLUE_UPPER_HIVE_Y = 85.0;
+        public static double FIELD_MIDLINE = 72.0;
     }
 
     @Config

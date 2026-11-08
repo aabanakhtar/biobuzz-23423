@@ -117,9 +117,12 @@ public class Turret extends SubsystemBase {
                 double constrainedAngleDeg = Math.max(-TURRET_MAX_ANGLE, Math.min(TURRET_MAX_ANGLE, compensatedTarget));
                 robot.flightRecorder.addData("Turret commanded angle (deg)", constrainedAngleDeg);
                 robot.flightRecorder.addData("Turret error (deg)", constrainedAngleDeg - lastAngle);
-                double power = turretAnglePID.calculate(lastAngle, constrainedAngleDeg);
-                power += Math.signum(power) * kS;
-
+                double angularVelocity = robot.drive.getAngularVelocity();
+                double pidPower = turretAnglePID.calculate(lastAngle, constrainedAngleDeg);
+                double angularVelocityFeedforward = angularVelocity * ANGULAR_VELOCITY_FEEDFORWARD;
+                double power = pidPower + Math.signum(pidPower) * kS + angularVelocityFeedforward;
+                robot.flightRecorder.addData("Robot angular velocity (rad/s)", angularVelocity);
+                robot.flightRecorder.addData("Turret angular velocity feedforward", angularVelocityFeedforward);
                 setPower(power);
                 break;
             }

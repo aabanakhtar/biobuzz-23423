@@ -105,7 +105,9 @@ public class SinglePlayerDrive extends OpMode {
 
     private void sendFieldPacket() {
         Pose pose = robot.drive.getPose();
-        Pose target = new Pose(RobotConstants.Aiming.TARGET_X, RobotConstants.Aiming.TARGET_Y, 0.0);
+        Pose target = MecanumDrive.selectHiveTarget(pose, Ashwing.alliance);
+
+        
         // Dashboard's field frame is centered at (0, 0); Pedro's origin is (0, 0)
         // at the bottom-left. Translate Pedro coordinates by half the 144-inch field.
         TelemetryPacket packet = new TelemetryPacket(false);
@@ -122,6 +124,8 @@ public class SinglePlayerDrive extends OpMode {
         packet.put("Pose X (in)", pose.x());
         packet.put("Pose Y (in)", pose.y());
         packet.put("Pose heading (deg)", Math.toDegrees(heading));
+
+
         dashboard.sendTelemetryPacket(packet);
     }
 

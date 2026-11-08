@@ -56,7 +56,7 @@ public class MecanumDrive extends SubsystemBase {
         follower.update();
         lastPose = follower.pose();
 
-        Pose target = new Pose(TARGET_X, TARGET_Y, 0.0);
+        Pose target = selectHiveTarget(lastPose, Ashwing.alliance);
         double normalizedHeading = AngleUnit.normalizeRadians(lastPose.heading());
         Pose normalizedPose = new Pose(lastPose.x(), lastPose.y(), normalizedHeading);
         lastAimTarget = calculateAimTarget(normalizedPose, target, TURRET_OFFSET);
@@ -84,6 +84,21 @@ public class MecanumDrive extends SubsystemBase {
 
     public AimAtTarget getAimTarget() {
         return lastAimTarget;
+    }
+
+    public double getAngularVelocity() {
+        return follower.velocity().omega;
+    }
+
+    public static Pose selectHiveTarget(Pose robotPose, Ashwing.Alliance alliance) {
+        double x = BLUE_UPPER_HIVE_X;
+        double y = robotPose.y() > FIELD_MIDLINE
+                ? BLUE_UPPER_HIVE_Y
+                : 2 * FIELD_MIDLINE - BLUE_UPPER_HIVE_Y;
+        if (alliance == Ashwing.Alliance.RED) {
+            x = 2 * FIELD_MIDLINE - x;
+        }
+        return new Pose(x, y, 0.0);
     }
 
     /** Offset is signed inches along robot forward; distance is feet, heading is robot-relative degrees. */
